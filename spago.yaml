@@ -5,21 +5,9 @@ package:
     dependencies:
       - spec
   dependencies:
-    - aff
-    - console
-    - effect
-    - either
     - filterable
-    - foldable-traversable
-    - maybe
-    - newtype
     - nullable
     - prelude
-    - strings
-    - stringutils
-    - transformers
-    - tuples
-    - typelevel-prelude
 workspace:
   extra_packages: {}
   package_set:
