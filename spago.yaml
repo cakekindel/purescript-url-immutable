@@ -1,19 +1,25 @@
 package:
+  name: url-immutable
+  test:
+    main: Test.Main
+    dependencies:
+      - spec
   dependencies:
-    - prelude
     - aff
+    - console
     - effect
     - either
-    - maybe
+    - filterable
     - foldable-traversable
-    - console
+    - maybe
     - newtype
+    - nullable
+    - prelude
     - strings
     - stringutils
     - transformers
     - tuples
     - typelevel-prelude
-  name: project
 workspace:
   extra_packages: {}
   package_set:
