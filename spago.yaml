@@ -3,11 +3,28 @@ package:
   test:
     main: Test.Main
     dependencies:
+      - aff
+      - effect
+      - exceptions
+      - foldable-traversable
+      - maybe
+      - ordered-collections
       - spec
+      - transformers
+      - tuples
   dependencies:
+    - arrays
+    - effect
     - filterable
+    - foldable-traversable
+    - integers
+    - maybe
+    - newtype
     - nullable
+    - ordered-collections
     - prelude
+    - strings
+    - tuples
 workspace:
   extra_packages: {}
   package_set:
