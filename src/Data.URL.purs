@@ -5,6 +5,7 @@ module Data.URL
   , (?)
   , Parts
   , Path(..)
+  , pathFromString
   , URL
   , addHash
   , addQuery
@@ -174,21 +175,23 @@ setQuery qs u =
   in
     querySetAllImpl asRecord u
 
-path :: URL -> Path
-path u =
+pathFromString :: String -> Path
+pathFromString s =
   let
-    pathname = pathnameImpl u
     segments = filter (not <<< String.null) <<< String.split (wrap "/")
   in
     maybe PathEmpty PathAbsolute
       $ filter (not <<< Array.null)
       $ Just
-      $ segments pathname
+      $ segments s
 
 pathSegments :: Path -> Array String
 pathSegments (PathEmpty) = []
 pathSegments (PathAbsolute s) = s
 pathSegments (PathRelative s) = s
+
+path :: URL -> Path
+path = pathFromString <<< pathnameImpl
 
 addSegment :: URL -> String -> URL
 addSegment u s = resolve (PathRelative [ s ]) u
