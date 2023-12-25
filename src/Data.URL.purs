@@ -1,22 +1,55 @@
-module Data.URL where
+module Data.URL
+  ( (#)
+  , (&)
+  , (/)
+  , (?)
+  , Parts
+  , Path(..)
+  , URL
+  , addHash
+  , addQuery
+  , addSegment
+  , class QueryParam
+  , fromParts
+  , fromString
+  , hash
+  , host
+  , parts
+  , password
+  , path
+  , port
+  , query
+  , setQuery
+  , protocol
+  , queryParamTuple
+  , resolve
+  , setHost
+  , setPassword
+  , setPort
+  , setProtocol
+  , setUsername
+  , toString
+  , username
+  ) where
 
 import Prelude
 
 import Data.Array as Array
 import Data.Filterable (filter)
-import Data.Foldable (intercalate)
+import Data.Foldable (class Foldable, foldl, intercalate)
 import Data.FoldableWithIndex (foldlWithIndex)
 import Data.Generic.Rep (class Generic)
 import Data.Int as Int
 import Data.Map (Map)
 import Data.Map as Map
-import Data.Maybe (Maybe(..), maybe)
+import Data.Maybe (Maybe(..), fromJust, maybe)
 import Data.Newtype (wrap)
 import Data.Nullable (Nullable)
 import Data.Nullable as Nullable
 import Data.Show.Generic (genericShow)
 import Data.String as String
 import Data.Tuple.Nested (type (/\), (/\))
+import Partial.Unsafe (unsafePartial)
 
 class QueryParam a where
   queryParamTuple :: a -> String /\ Array String
@@ -29,15 +62,35 @@ else instance QueryParam (String /\ Array String) where
   queryParamTuple = identity
 
 foreign import data URL :: Type
-foreign import data SearchParams :: Type
+
+instance Show URL where
+  show u = "(URL " <> show (toString u) <> ")"
+
+instance Eq URL where
+  eq a b = parts a == parts b
+
+instance Ord URL where
+  compare a b = compare (parts a) (parts b)
+
+type Parts =
+  { path :: Path
+  , query :: Map String (Array String)
+  , hash :: Maybe String
+  , host :: String
+  , port :: Maybe Int
+  , protocol :: String
+  , username :: Maybe String
+  , password :: Maybe String
+  }
 
 data Path
-  = PathAbsolute (Array String)
+  = PathEmpty
+  | PathAbsolute (Array String)
   | PathRelative (Array String)
-  | PathEmpty
 
 derive instance Generic Path _
 derive instance Eq Path
+derive instance Ord Path
 instance Show Path where
   show = genericShow
 
@@ -72,6 +125,40 @@ fromString = Nullable.toMaybe <<< fromStringImpl
 toString :: URL -> String
 toString = hrefImpl
 
+fromParts :: Parts -> URL
+fromParts u =
+  let
+    empty = unsafePartial fromJust $ fromString "http://0.0.0.0"
+
+    perhaps :: forall a b. (a -> b -> b) -> Maybe a -> b -> b
+    perhaps f a = maybe identity f a
+
+    many :: forall f a b. Foldable f => (b -> a -> b) -> f a -> b -> b
+    many f as b = foldl f b as
+  in
+    setQuery u.query
+      $ many addSegment (pathSegments u.path)
+      $ setHost u.host
+      $ perhaps setUsername u.username
+      $ perhaps setPassword u.password
+      $ perhaps setHash u.hash
+      $ perhaps setPort u.port
+      $ setProtocol u.protocol
+      $ setHost u.host
+      $ empty
+
+parts :: URL -> Parts
+parts u =
+  { path: path u
+  , query: query u
+  , host: host u
+  , port: port u
+  , username: username u
+  , password: password u
+  , hash: hash u
+  , protocol: protocol u
+  }
+
 query :: URL -> Map String (Array String)
 query u =
   let
@@ -97,6 +184,11 @@ path u =
       $ filter (not <<< Array.null)
       $ Just
       $ segments pathname
+
+pathSegments :: Path -> Array String
+pathSegments (PathEmpty) = []
+pathSegments (PathAbsolute s) = s
+pathSegments (PathRelative s) = s
 
 addSegment :: URL -> String -> URL
 addSegment u s = resolve (PathRelative [ s ]) u

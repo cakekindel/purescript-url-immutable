@@ -1,4 +1,7 @@
 package:
+  build:
+    strict: true
+    pedantic_packages: true
   name: url-immutable
   test:
     main: Test.Main
@@ -14,7 +17,6 @@ package:
       - tuples
   dependencies:
     - arrays
-    - effect
     - filterable
     - foldable-traversable
     - integers
@@ -22,6 +24,7 @@ package:
     - newtype
     - nullable
     - ordered-collections
+    - partial
     - prelude
     - strings
     - tuples
