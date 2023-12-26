@@ -4,8 +4,11 @@ workspace:
       path: ./
       dependencies:
         - arrays
+        - bifunctors
+        - either
         - filterable
         - foldable-traversable
+        - foreign
         - integers
         - maybe
         - newtype
@@ -13,7 +16,9 @@ workspace:
         - ordered-collections
         - partial
         - prelude
+        - simple-json
         - strings
+        - transformers
         - tuples
       test_dependencies:
         - aff
@@ -45,6 +50,8 @@ workspace:
         - exists
         - filterable
         - foldable-traversable
+        - foreign
+        - foreign-object
         - fork
         - free
         - functions
@@ -69,8 +76,10 @@ workspace:
         - pipes
         - prelude
         - profunctor
+        - record
         - refs
         - safe-coerce
+        - simple-json
         - spec
         - st
         - strings
@@ -78,8 +87,10 @@ workspace:
         - transformers
         - tuples
         - type-equality
+        - typelevel-prelude
         - unfoldable
         - unsafe-coerce
+        - variant
   package_set:
     address:
       hash: sha256-nTsd44o7/hrTdk0c6dh0wyBqhFFDJJIeKdQU6L1zv/A=
@@ -5916,6 +5927,37 @@ packages:
       - orders
       - prelude
       - tuples
+  foreign:
+    type: git
+    url: https://github.com/purescript/purescript-foreign.git
+    rev: 2dd222d1ec7363fa0a0a7adb0d8eaf81bb7006dd
+    dependencies:
+      - either
+      - functions
+      - identity
+      - integers
+      - lists
+      - maybe
+      - prelude
+      - strings
+      - transformers
+  foreign-object:
+    type: git
+    url: https://github.com/purescript/purescript-foreign-object.git
+    rev: 9bfb4eb6271b151414594cfec669fb4b18b91bd1
+    dependencies:
+      - arrays
+      - foldable-traversable
+      - functions
+      - gen
+      - lists
+      - maybe
+      - prelude
+      - st
+      - tailrec
+      - tuples
+      - typelevel-prelude
+      - unfoldable
   fork:
     type: git
     url: https://github.com/purescript-contrib/purescript-fork.git
@@ -6161,6 +6203,14 @@ packages:
       - newtype
       - prelude
       - tuples
+  record:
+    type: git
+    url: https://github.com/purescript/purescript-record.git
+    rev: c89cd1ada6b636692571fc374196b1c39c4c9f70
+    dependencies:
+      - functions
+      - prelude
+      - unsafe-coerce
   refs:
     type: git
     url: https://github.com/purescript/purescript-refs.git
@@ -6174,6 +6224,20 @@ packages:
     rev: 7fa799ae80a38b8d948efcb52608e58e198b3da7
     dependencies:
       - unsafe-coerce
+  simple-json:
+    type: git
+    url: https://github.com/justinwoo/purescript-simple-json.git
+    rev: b85e112131240ff95b5c26e9abb8e2fa6db3c656
+    dependencies:
+      - arrays
+      - exceptions
+      - foreign
+      - foreign-object
+      - nullable
+      - prelude
+      - record
+      - typelevel-prelude
+      - variant
   spec:
     type: git
     url: https://github.com/purescript-spec/purescript-spec.git
@@ -6282,6 +6346,13 @@ packages:
     url: https://github.com/purescript/purescript-type-equality.git
     rev: 0525b7d39e0fbd81b4209518139fb8ab02695774
     dependencies: []
+  typelevel-prelude:
+    type: git
+    url: https://github.com/purescript/purescript-typelevel-prelude.git
+    rev: dca2fe3c8cfd5527d4fe70c4bedfda30148405bf
+    dependencies:
+      - prelude
+      - type-equality
   unfoldable:
     type: git
     url: https://github.com/purescript/purescript-unfoldable.git
@@ -6297,3 +6368,16 @@ packages:
     url: https://github.com/purescript/purescript-unsafe-coerce.git
     rev: ab956f82e66e633f647fb3098e8ddd3ec58d689f
     dependencies: []
+  variant:
+    type: git
+    url: https://github.com/natefaubion/purescript-variant.git
+    rev: 8b2bd73a4202257d80a955c4dd36f6055f149823
+    dependencies:
+      - enums
+      - lists
+      - maybe
+      - partial
+      - prelude
+      - record
+      - tuples
+      - unsafe-coerce

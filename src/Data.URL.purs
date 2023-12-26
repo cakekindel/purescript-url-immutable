@@ -35,7 +35,10 @@ module Data.URL
 
 import Prelude
 
+import Control.Monad.Error.Class (liftEither, liftMaybe)
 import Data.Array as Array
+import Data.Bifunctor (lmap)
+import Data.Either (Either)
 import Data.Filterable (filter)
 import Data.Foldable (class Foldable, foldl, intercalate)
 import Data.FoldableWithIndex (foldlWithIndex)
@@ -50,7 +53,9 @@ import Data.Nullable as Nullable
 import Data.Show.Generic (genericShow)
 import Data.String as String
 import Data.Tuple.Nested (type (/\), (/\))
+import Foreign (ForeignError(..))
 import Partial.Unsafe (unsafePartial)
+import Simple.JSON (class ReadForeign, class WriteForeign, readImpl, writeImpl)
 
 class QueryParam a where
   queryParamTuple :: a -> String /\ Array String
@@ -63,6 +68,12 @@ else instance QueryParam (String /\ Array String) where
   queryParamTuple = identity
 
 foreign import data URL :: Type
+
+instance WriteForeign URL where
+  writeImpl = writeImpl <<< toString
+
+instance ReadForeign URL where
+  readImpl = flip bind (liftEither <<< lmap pure <<< lmap ForeignError <<< parse) <<< readImpl
 
 instance Show URL where
   show u = "(URL " <> show (toString u) <> ")"
@@ -122,6 +133,9 @@ foreign import setUsernameImpl :: String -> URL -> URL
 
 fromString :: String -> Maybe URL
 fromString = Nullable.toMaybe <<< fromStringImpl
+
+parse :: String -> Either String URL
+parse url = liftMaybe ("invalid URL: " <> url) $ Nullable.toMaybe $ fromStringImpl url
 
 toString :: URL -> String
 toString = hrefImpl

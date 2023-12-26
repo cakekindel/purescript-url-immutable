@@ -17,8 +17,11 @@ package:
       - tuples
   dependencies:
     - arrays
+    - bifunctors
+    - either
     - filterable
     - foldable-traversable
+    - foreign
     - integers
     - maybe
     - newtype
@@ -26,7 +29,9 @@ package:
     - ordered-collections
     - partial
     - prelude
+    - simple-json
     - strings
+    - transformers
     - tuples
 workspace:
   extra_packages: {}
