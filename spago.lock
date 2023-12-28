@@ -18,6 +18,7 @@ workspace:
         - prelude
         - simple-json
         - strings
+        - stringutils
         - transformers
         - tuples
       test_dependencies:
@@ -83,6 +84,7 @@ workspace:
         - spec
         - st
         - strings
+        - stringutils
         - tailrec
         - transformers
         - tuples
@@ -6301,6 +6303,17 @@ packages:
       - tuples
       - unfoldable
       - unsafe-coerce
+  stringutils:
+    type: git
+    url: https://github.com/menelaos/purescript-stringutils.git
+    rev: 51d92cacd8c8102fc4e6137b4f709a2b11ca5186
+    dependencies:
+      - arrays
+      - integers
+      - maybe
+      - partial
+      - prelude
+      - strings
   tailrec:
     type: git
     url: https://github.com/purescript/purescript-tailrec.git

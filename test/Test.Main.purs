@@ -3,11 +3,12 @@ module Test.Main where
 import Prelude hiding ((/), (#))
 
 import Control.Monad.Error.Class (liftMaybe, throwError)
+import Data.Either (Either(..), isRight)
 import Data.Map as Map
 import Data.Maybe (Maybe(..), maybe)
 import Data.Traversable (for_)
 import Data.Tuple.Nested ((/\))
-import Data.URL (URL, (#), (&), (/), (?))
+import Data.URL (Path(..), URL, pathOrURLFromString, resolveString, toString, (#), (&), (/), (?))
 import Data.URL as URL
 import Effect (Effect)
 import Effect.Aff (Aff, launchAff_)
@@ -36,6 +37,37 @@ main = launchAff_ $ runSpec [ consoleReporter ] do
         case_ "google.com"
         case_ "localhost"
         case_ "http://?feai#dfkvsj"
+
+    describe "pathOrURLFromString" do
+      it "returns Right on valid URL" do
+        isRight (pathOrURLFromString "https://google.com") `shouldEqual` true
+        isRight (pathOrURLFromString "http://localhost?foo=bar&foo&foo&bar=baz") `shouldEqual` true
+        isRight (pathOrURLFromString "postgresql://user:pass@1.2.3.4:5432/dbname") `shouldEqual` true
+      it "returns Left on anything else" do
+        (pathOrURLFromString "/foo") `shouldEqual` (Left $ PathAbsolute [ "foo" ])
+        (pathOrURLFromString "./../../foo") `shouldEqual` (Left $ PathRelative [ ".", "..", "..", "foo" ])
+        (pathOrURLFromString "foo") `shouldEqual` (Left $ PathRelative [ "foo" ])
+        (pathOrURLFromString "") `shouldEqual` (Left PathEmpty)
+        (pathOrURLFromString "941389dfajifdjiao34910fd#$@?!") `shouldEqual` (Left $ PathRelative [ "941389dfajifdjiao34910fd#$@?!" ])
+
+    describe "resolveString" do
+      it "works" do
+        (shouldEqual "https://google.com/foo")
+          =<< toString
+            <$> resolveString "/foo"
+            <$> fromString_ "https://google.com/a/b/c/d/e"
+        (shouldEqual "https://google.com/foo/bar/baz/a")
+          =<< toString
+            <$> resolveString "./a"
+            <$> fromString_ "https://google.com/foo/bar/baz"
+        (shouldEqual "https://google.com/foo/a")
+          =<< toString
+            <$> resolveString "../../a"
+            <$> fromString_ "https://google.com/foo/bar/baz"
+        (shouldEqual "https://cheese.com/foo/bar")
+          =<< toString
+            <$> resolveString "https://cheese.com/foo/bar"
+            <$> fromString_ "https://google.com/foo/bar/baz"
 
     describe "toString" do
       it "stringifies" do

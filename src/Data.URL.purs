@@ -18,12 +18,14 @@ module Data.URL
   , parts
   , password
   , path
+  , pathOrURLFromString
   , port
   , query
   , setQuery
   , protocol
   , queryParamTuple
   , resolve
+  , resolveString
   , setHost
   , setPassword
   , setPort
@@ -38,7 +40,7 @@ import Prelude
 import Control.Monad.Error.Class (liftEither, liftMaybe)
 import Data.Array as Array
 import Data.Bifunctor (lmap)
-import Data.Either (Either)
+import Data.Either (Either(..), note)
 import Data.Filterable (filter)
 import Data.Foldable (class Foldable, foldl, intercalate)
 import Data.FoldableWithIndex (foldlWithIndex)
@@ -51,7 +53,8 @@ import Data.Newtype (wrap)
 import Data.Nullable (Nullable)
 import Data.Nullable as Nullable
 import Data.Show.Generic (genericShow)
-import Data.String as String
+import Data.String (null, replace, split) as String
+import Data.String.Utils (startsWith) as String
 import Data.Tuple.Nested (type (/\), (/\))
 import Foreign (ForeignError(..))
 import Partial.Unsafe (unsafePartial)
@@ -134,6 +137,9 @@ foreign import setUsernameImpl :: String -> URL -> URL
 fromString :: String -> Maybe URL
 fromString = Nullable.toMaybe <<< fromStringImpl
 
+pathOrURLFromString :: String -> Either Path URL
+pathOrURLFromString s = note (pathFromString s) $ fromString s
+
 parse :: String -> Either String URL
 parse url = liftMaybe ("invalid URL: " <> url) $ Nullable.toMaybe $ fromStringImpl url
 
@@ -192,9 +198,11 @@ setQuery qs u =
 pathFromString :: String -> Path
 pathFromString s =
   let
-    segments = filter (not <<< String.null) <<< String.split (wrap "/")
+    segments =
+      filter (not <<< String.null)
+        <<< String.split (wrap "/")
   in
-    maybe PathEmpty PathAbsolute
+    maybe PathEmpty (if String.startsWith "/" s then PathAbsolute else PathRelative)
       $ filter (not <<< Array.null)
       $ Just
       $ segments s
@@ -230,6 +238,12 @@ addQuery u p =
 
 infixl 3 addQuery as ?
 infixl 3 addQuery as &
+
+resolveString :: String -> URL -> URL
+resolveString s a =
+  case pathOrURLFromString s of
+    Right b -> b
+    Left p -> resolve p a
 
 resolve :: Path -> URL -> URL
 resolve p u =
