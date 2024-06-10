@@ -2,6 +2,12 @@ package:
   build:
     strict: true
     pedanticPackages: true
+  publish:
+    version: '0.0.0'
+    license: 'GPL-3.0-or-later'
+    location:
+      githubOwner: 'cakekindel'
+      githubRepo: 'purescript-url-immutable'
   name: url-immutable
   test:
     main: Test.Main
